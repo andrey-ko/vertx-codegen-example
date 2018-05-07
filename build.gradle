@@ -7,6 +7,14 @@ apply plugin: "java"
 compileJava.options.compilerArgs << "-Xlint:unchecked"
 compileJava.options.compilerArgs << "-Xlint:deprecation"
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+sourceSets.main.java.srcDirs = ['src']
+sourceSets.main.resources.srcDirs = ['res']
+sourceSets.test.java.srcDirs = ['tests/src']
+sourceSets.test.resources.srcDirs = ['tests/res']
+
 repositories {
   mavenCentral()
 }
@@ -32,14 +40,14 @@ task generateVertxCode(type: JavaCompile) {
   group "codegen"
   compileJava.dependsOn it
 
-  source = file("src/main/java")
+  source = file("src")
 
   classpath = configurations.vxcodegen
 
   options.compilerArgs = [
     "-proc:only",
     "-processor", "io.vertx.codegen.CodeGenProcessor",
-    "-Acodegen.output=${projectDir}/src/main"
+    //"-Acodegen.output=${projectDir}/src/main/java"
   ]
 
   destinationDir = file("gen")
