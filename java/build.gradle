@@ -1,0 +1,38 @@
+configurations {
+  vxcodegen
+}
+
+dependencies {
+  vxcodegen "io.vertx:vertx-codegen:$vertxVersion:processor"
+  vxcodegen "io.vertx:vertx-rx-java:$vertxVersion"
+  vxcodegen "io.vertx:vertx-service-proxy:$vertxVersion"
+}
+
+task generateVertxCode(type: JavaCompile) {
+  group "codegen"
+  compileJava.dependsOn it
+
+  source = file("src")
+
+  classpath = configurations.vxcodegen
+
+  options.compilerArgs = [
+    "-proc:only",
+    "-processor", "io.vertx.codegen.CodeGenProcessor",
+    //"-Acodegen.output=${projectDir}/src/main/java"
+  ]
+
+  destinationDir = file("gen")
+  sourceSets.main.java.srcDirs += file("gen")
+
+  doFirst {
+    logger.lifecycle("processing annotations")
+    file("gen").mkdirs()
+  }
+
+  clean {
+    doFirst {
+      delete file("gen")
+    }
+  }
+}

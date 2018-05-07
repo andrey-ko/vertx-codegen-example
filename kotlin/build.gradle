@@ -1,0 +1,46 @@
+apply plugin: "kotlin"
+
+kotlin {
+  experimental {
+    coroutines 'enable'
+  }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions {
+    jvmTarget = JavaVersion.VERSION_1_8
+  }
+}
+
+sourceSets.main.kotlin.srcDirs = sourceSets.main.java.srcDirs
+sourceSets.test.kotlin.srcDirs = sourceSets.test.java.srcDirs
+
+apply plugin: "kotlin-kapt"
+
+
+dependencies {
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+  compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+}
+
+kapt {
+  generateStubs = true
+  processors = "io.vertx.codegen.CodeGenProcessor"
+}
+
+afterEvaluate {
+  kaptGenerateStubsKotlin {
+    group "codegen"
+  }
+
+  kaptKotlin {
+    group "codegen"
+  }
+
+}
+
+dependencies {
+  kapt "io.vertx:vertx-codegen:$vertxVersion:processor"
+  //kapt "io.vertx:vertx-rx-java:$vertxVersion"
+  kapt "io.vertx:vertx-service-proxy:$vertxVersion"
+}
