@@ -1,0 +1,58 @@
+group group
+version version
+buildDir ".out"
+
+apply plugin: "java"
+
+compileJava.options.compilerArgs << "-Xlint:unchecked"
+compileJava.options.compilerArgs << "-Xlint:deprecation"
+
+repositories {
+  mavenCentral()
+}
+
+configurations {
+  vxcodegen
+}
+
+dependencies {
+  vxcodegen "io.vertx:vertx-codegen:$vertxVersion:processor"
+  vxcodegen "io.vertx:vertx-rx-java:$vertxVersion"
+  vxcodegen "io.vertx:vertx-service-proxy:$vertxVersion"
+}
+
+dependencies {
+  compile "io.vertx:vertx-core:$vertxVersion"
+  compile "io.vertx:vertx-codegen:$vertxVersion"
+  compile "io.vertx:vertx-rx-java:$vertxVersion"
+  compile "io.vertx:vertx-service-proxy:$vertxVersion"
+}
+
+task generateVertxCode(type: JavaCompile) {
+  group "codegen"
+  compileJava.dependsOn it
+
+  source = file("src/main/java")
+
+  classpath = configurations.vxcodegen
+
+  options.compilerArgs = [
+    "-proc:only",
+    "-processor", "io.vertx.codegen.CodeGenProcessor",
+    "-Acodegen.output=${projectDir}/src/main"
+  ]
+
+  destinationDir = file("gen")
+  sourceSets.main.java.srcDirs += file("gen")
+
+  doFirst {
+    logger.lifecycle("processing annotations")
+    file("gen").mkdirs()
+  }
+
+  clean {
+    doFirst {
+      delete file("gen")
+    }
+  }
+}
